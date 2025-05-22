@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>&#x5171;&#x4eab;&#x8d44;&#x6e90;</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="共享资源">共享资源</h1>
+<p>共享资源是另一种模拟进程交互的方式。它们形成一个拥塞点，进程会排队等待使用它们。</p>
+<ul>
+<li><a href="#%E5%85%B1%E4%BA%AB%E8%B5%84%E6%BA%90">共享资源</a>
+<ul>
+<li><a href="#%E8%B5%84%E6%BA%90%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5">资源的基本概念</a></li>
+<li><a href="#%E8%B5%84%E6%BA%90">资源</a>
+<ul>
+<li><a href="#%E4%BC%98%E5%85%88%E7%BA%A7%E8%B5%84%E6%BA%90">优先级资源</a></li>
+<li><a href="#%E6%8A%A2%E5%8D%A0%E5%BC%8F%E8%B5%84%E6%BA%90">抢占式资源</a></li>
+</ul>
+</li>
+<li><a href="#%E5%AE%B9%E5%99%A8">容器</a></li>
+<li><a href="#%E5%AD%98%E5%82%A8">存储</a></li>
+</ul>
+</li>
+</ul>
+<p>SimPy 定义了三种类别的资源：</p>
+<ul>
+<li><strong>资源</strong>：一次只能被有限数量的进程使用的资源（例如，一个加油站有有限数量的加油泵）。</li>
+<li><strong>容器</strong>：用于模拟生产与消费同质、无差别的大量物品的资源。它可以是连续的（如水）或离散的（如苹果）。</li>
+<li><strong>存储</strong>：允许生产与消费 Python 对象的资源。</li>
+</ul>
+<h2 id="资源的基本概念">资源的基本概念</h2>
+<p>所有资源都共享相同的基本概念：资源本身是一种容器，通常具有有限的容量。进程可以尝试将某物放入资源中（<code>put</code>），或者尝试从中取出某物（<code>get</code>）。如果资源已满或为空，它们必须排队等待。</p>
+<p>以下是资源的典型结构：</p>
+<pre><code class="language-text">基础资源（容量）：
+   放置队列
+   获取队列
+
+   put()：事件
+   get()：事件
+</code></pre>
+<p>每个资源都有一个最大容量和两个队列：一个用于想要放入某物的进程，另一个用于想要取出某物的进程。<code>put()</code> 和 <code>get()</code> 方法都会返回一个事件，该事件在相应的操作成功时触发。</p>
+<p>当进程等待放置或获取事件成功时，可能会被其他进程中断。在捕获中断后，进程有两种选择：</p>
+<ol>
+<li>继续等待请求。</li>
+<li>停止等待请求。这种情况下，它必须调用事件的 <code>cancel()</code> 方法。</li>
+</ol>
+<p>由于很容易忘记这一点，所有资源事件都是上下文管理器。</p>
+<p>资源系统是模块化和可扩展的。例如，资源可以使用专门的队列和事件类型。这允许它们使用排序队列、为事件添加优先级，或者提供抢占功能。</p>
+<h2 id="资源">资源</h2>
+<p>资源一次只能被有限数量的进程使用（例如，一个加油站有有限数量的加油泵）。进程需要先请求这些资源才能成为用户（或“拥有”它们），并在完成后释放它们（例如，车辆到达加油站，如果可用则使用加油泵，完成后离开）。</p>
+<p>请求资源被建模为“将进程的令牌放入资源中”，而释放资源则相应地为“将进程的令牌从资源中取出”。因此，调用 <code>request()</code>/<code>release()</code> 等同于调用 <code>put()</code>/<code>get()</code>。释放资源总是会立即成功。</p>
+<p>SimPy 实现了三种资源类型：</p>
+<ol>
+<li><code>Resource</code></li>
+<li><code>PriorityResource</code>（其中排队的进程按优先级排序）</li>
+<li><code>PreemptiveResource</code>（其中进程还可以抢占优先级较低的其他进程）</li>
+</ol>
+<p><code>Resource</code> 从概念上类似于信号量。除了对环境的引用外，它的唯一参数是其容量。它必须是一个正数，默认为 1：<code>Resource(env, capacity=1)</code>。</p>
+<p>它不是简单地计数当前用户数，而是将请求事件存储为每个用户的“访问令牌”。这对于添加抢占（见下文）非常有用。</p>
+<p>以下是一个使用资源的基本示例：</p>
+<pre><code class="language-python"><span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">import</span> simpy
+&gt;&gt;&gt;
+<span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">def</span> <span class="hljs-title function_">resource_user</span>(<span class="hljs-params">env, resource</span>):
+<span class="hljs-meta">... </span>    request = resource.request()  <span class="hljs-comment"># 生成请求事件</span>
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">yield</span> request                 <span class="hljs-comment"># 等待访问</span>
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">yield</span> env.timeout(<span class="hljs-number">1</span>)          <span class="hljs-comment"># 执行某些操作</span>
+<span class="hljs-meta">... </span>    resource.release(request)     <span class="hljs-comment"># 释放资源</span>
+...
+<span class="hljs-meta">&gt;&gt;&gt; </span>env = simpy.Environment()
+<span class="hljs-meta">&gt;&gt;&gt; </span>res = simpy.Resource(env, capacity=<span class="hljs-number">1</span>)
+<span class="hljs-meta">&gt;&gt;&gt; </span>user = env.process(resource_user(env, res))
+<span class="hljs-meta">&gt;&gt;&gt; </span>env.run()
+</code></pre>
+<p>注意，你必须在所有情况下释放资源；例如，如果你在等待或使用资源时被打断。为了帮助你做到这一点，并避免使用过多的 <code>try: ... finally: ...</code> 结构，可以将请求事件用作上下文管理器：</p>
+<pre><code class="language-python"><span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">def</span> <span class="hljs-title function_">resource_user</span>(<span class="hljs-params">env, resource</span>):
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">with</span> resource.request() <span class="hljs-keyword">as</span> req:  <span class="hljs-comment"># 生成请求事件</span>
+<span class="hljs-meta">... </span>        <span class="hljs-keyword">yield</span> req                    <span class="hljs-comment"># 等待访问</span>
+<span class="hljs-meta">... </span>        <span class="hljs-keyword">yield</span> env.timeout(<span class="hljs-number">1</span>)         <span class="hljs-comment"># 执行某些操作</span>
+<span class="hljs-meta">... </span>                                     <span class="hljs-comment"># 资源自动释放</span>
+<span class="hljs-meta">&gt;&gt;&gt; </span>user = env.process(resource_user(env, res))
+<span class="hljs-meta">&gt;&gt;&gt; </span>env.run()
+</code></pre>
+<p>资源允许你获取当前用户列表或排队用户列表，当前用户数量和资源的容量：</p>
+<pre><code class="language-python"><span class="hljs-meta">&gt;&gt;&gt; </span>res = simpy.Resource(env, capacity=<span class="hljs-number">1</span>)
+&gt;&gt;&gt;
+<span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">def</span> <span class="hljs-title function_">print_stats</span>(<span class="hljs-params">res</span>):
+<span class="hljs-meta">... </span>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;<span class="hljs-subst">{res.count}</span> of <span class="hljs-subst">{res.capacity}</span> slots are allocated.&#x27;</span>)
+<span class="hljs-meta">... </span>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;  Users: <span class="hljs-subst">{res.users}</span>&#x27;</span>)
+<span class="hljs-meta">... </span>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;  Queued events: <span class="hljs-subst">{res.queue}</span>&#x27;</span>)
+&gt;&gt;&gt;
+&gt;&gt;&gt;
+<span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">def</span> <span class="hljs-title function_">user</span>(<span class="hljs-params">res</span>):
+<span class="hljs-meta">... </span>    print_stats(res)
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">with</span> res.request() <span class="hljs-keyword">as</span> req:
+<span class="hljs-meta">... </span>        <span class="hljs-keyword">yield</span> req
+<span class="hljs-meta">... </span>        print_stats(res)
+<span class="hljs-meta">... </span>    print_stats(res)
+&gt;&gt;&gt;
+<span class="hljs-meta">&gt;&gt;&gt; </span>procs = [env.process(user(res)), env.process(user(res))]
+<span class="hljs-meta">&gt;&gt;&gt; </span>env.run()
+<span class="hljs-number">0</span> of <span class="hljs-number">1</span> slots are allocated.
+  Users: []
+  Queued events: []
+<span class="hljs-number">1</span> of <span class="hljs-number">1</span> slots are allocated.
+  Users: [&lt;Request() <span class="hljs-built_in">object</span> at 0x...&gt;]
+  Queued events: []
+<span class="hljs-number">1</span> of <span class="hljs-number">1</span> slots are allocated.
+  Users: [&lt;Request() <span class="hljs-built_in">object</span> at 0x...&gt;]
+  Queued events: [&lt;Request() <span class="hljs-built_in">object</span> at 0x...&gt;]
+<span class="hljs-number">0</span> of <span class="hljs-number">1</span> slots are allocated.
+  Users: []
+  Queued events: [&lt;Request() <span class="hljs-built_in">object</span> at 0x...&gt;]
+<span class="hljs-number">1</span> of <span class="hljs-number">1</span> slots are allocated.
+  Users: [&lt;Request() <span class="hljs-built_in">object</span> at 0x...&gt;]
+  Queued events: []
+<span class="hljs-number">0</span> of <span class="hljs-number">1</span> slots are allocated.
+  Users: []
+  Queued events: []
+</code></pre>
+<h3 id="优先级资源">优先级资源</h3>
+<p>在现实世界中，并非所有事物都同等重要。为了在 SimPy 中反映这一点，我们提供了 <code>PriorityResource</code>。这个 <code>Resource</code> 的子类允许请求进程为每个请求提供优先级。更重要请求将比不太重要的请求更早获得资源访问权限。优先级由整数表示；较小的数字表示更高的优先级。</p>
+<p>除此之外，它的工作方式与普通的 <code>Resource</code> 相同：</p>
+<pre><code class="language-python"><span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">def</span> <span class="hljs-title function_">resource_user</span>(<span class="hljs-params">name, env, resource, wait, prio</span>):
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">yield</span> env.timeout(wait)
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">with</span> resource.request(priority=prio) <span class="hljs-keyword">as</span> req:
+<span class="hljs-meta">... </span>        <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;<span class="hljs-subst">{name}</span> requesting at <span class="hljs-subst">{env.now}</span> with priority=<span class="hljs-subst">{prio}</span>&#x27;</span>)
+<span class="hljs-meta">... </span>        <span class="hljs-keyword">yield</span> req
+<span class="hljs-meta">... </span>        <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;<span class="hljs-subst">{name}</span> got resource at <span class="hljs-subst">{env.now}</span>&#x27;</span>)
+<span class="hljs-meta">... </span>        <span class="hljs-keyword">yield</span> env.timeout(<span class="hljs-number">3</span>)
+...
+<span class="hljs-meta">&gt;&gt;&gt; </span>env = simpy.Environment()
+<span class="hljs-meta">&gt;&gt;&gt; </span>res = simpy.PriorityResource(env, capacity=<span class="hljs-number">1</span>)
+<span class="hljs-meta">&gt;&gt;&gt; </span>p1 = env.process(resource_user(<span class="hljs-number">1</span>, env, res, wait=<span class="hljs-number">0</span>, prio=<span class="hljs-number">0</span>))
+<span class="hljs-meta">&gt;&gt;&gt; </span>p2 = env.process(resource_user(<span class="hljs-number">2</span>, env, res, wait=<span class="hljs-number">1</span>, prio=<span class="hljs-number">0</span>))
+<span class="hljs-meta">&gt;&gt;&gt; </span>p3 = env.process(resource_user(<span class="hljs-number">3</span>, env, res, wait=<span class="hljs-number">2</span>, prio=-<span class="hljs-number">1</span>))
+<span class="hljs-meta">&gt;&gt;&gt; </span>env.run()
+<span class="hljs-number">1</span> requesting at <span class="hljs-number">0</span> <span class="hljs-keyword">with</span> priority=<span class="hljs-number">0</span>
+<span class="hljs-number">1</span> got resource at <span class="hljs-number">0</span>
+<span class="hljs-number">2</span> requesting at <span class="hljs-number">1</span> <span class="hljs-keyword">with</span> priority=<span class="hljs-number">0</span>
+<span class="hljs-number">3</span> requesting at <span class="hljs-number">2</span> <span class="hljs-keyword">with</span> priority=-<span class="hljs-number">1</span>
+<span class="hljs-number">3</span> got resource at <span class="hljs-number">3</span>
+<span class="hljs-number">2</span> got resource at <span class="hljs-number">6</span>
+</code></pre>
+<p>尽管 <code>p3</code> 的请求时间晚于 <code>p2</code>，但由于其优先级更高，它能够更早地使用资源。</p>
+<h3 id="抢占式资源">抢占式资源</h3>
+<p>有时，新的请求非常重要，以至于仅仅插队是不够的，它们需要将现有用户赶出资源（这称为抢占）。<code>PreemptiveResource</code> 允许你这样做：</p>
+<pre><code class="language-python"><span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">def</span> <span class="hljs-title function_">resource_user</span>(<span class="hljs-params">name, env, resource, wait, prio</span>):
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">yield</span> env.timeout(wait)
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">with</span> resource.request(priority=prio) <span class="hljs-keyword">as</span> req:
+<span class="hljs-meta">... </span>        <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;<span class="hljs-subst">{name}</span> requesting at <span class="hljs-subst">{env.now}</span> with priority=<span class="hljs-subst">{prio}</span>&#x27;</span>)
+<span class="hljs-meta">... </span>        <span class="hljs-keyword">yield</span> req
+<span class="hljs-meta">... </span>        <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;<span class="hljs-subst">{name}</span> got resource at <span class="hljs-subst">{env.now}</span>&#x27;</span>)
+<span class="hljs-meta">... </span>        <span class="hljs-keyword">try</span>:
+<span class="hljs-meta">... </span>            <span class="hljs-keyword">yield</span> env.timeout(<span class="hljs-number">3</span>)
+<span class="hljs-meta">... </span>        <span class="hljs-keyword">except</span> simpy.Interrupt <span class="hljs-keyword">as</span> interrupt:
+<span class="hljs-meta">... </span>            by = interrupt.cause.by
+<span class="hljs-meta">... </span>            usage = env.now - interrupt.cause.usage_since
+<span class="hljs-meta">... </span>            <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;<span class="hljs-subst">{name}</span> got preempted by <span class="hljs-subst">{by}</span> at <span class="hljs-subst">{env.now}</span>&#x27;</span>
+<span class="hljs-meta">... </span>                  <span class="hljs-string">f&#x27; after <span class="hljs-subst">{usage}</span>&#x27;</span>)
+...
+<span class="hljs-meta">&gt;&gt;&gt; </span>env = simpy.Environment()
+<span class="hljs-meta">&gt;&gt;&gt; </span>res = simpy.PreemptiveResource(env, capacity=<span class="hljs-number">1</span>)
+<span class="hljs-meta">&gt;&gt;&gt; </span>p1 = env.process(resource_user(<span class="hljs-number">1</span>, env, res, wait=<span class="hljs-number">0</span>, prio=<span class="hljs-number">0</span>))
+<span class="hljs-meta">&gt;&gt;&gt; </span>p2 = env.process(resource_user(<span class="hljs-number">2</span>, env, res, wait=<span class="hljs-number">1</span>, prio=<span class="hljs-number">0</span>))
+<span class="hljs-meta">&gt;&gt;&gt; </span>p3 = env.process(resource_user(<span class="hljs-number">3</span>, env, res, wait=<span class="hljs-number">2</span>, prio=-<span class="hljs-number">1</span>))
+<span class="hljs-meta">&gt;&gt;&gt; </span>env.run()
+<span class="hljs-number">1</span> requesting at <span class="hljs-number">0</span> <span class="hljs-keyword">with</span> priority=<span class="hljs-number">0</span>
+<span class="hljs-number">1</span> got resource at <span class="hljs-number">0</span>
+<span class="hljs-number">2</span> requesting at <span class="hljs-number">1</span> <span class="hljs-keyword">with</span> priority=<span class="hljs-number">0</span>
+<span class="hljs-number">3</span> requesting at <span class="hljs-number">2</span> <span class="hljs-keyword">with</span> priority=-<span class="hljs-number">1</span>
+<span class="hljs-number">1</span> got preempted by &lt;Process(resource_user) <span class="hljs-built_in">object</span> at 0x...&gt; at <span class="hljs-number">2</span> after <span class="hljs-number">2</span>
+<span class="hljs-number">3</span> got resource at <span class="hljs-number">2</span>
+<span class="hljs-number">2</span> got resource at <span class="hljs-number">5</span>
+</code></pre>
+<p><code>PreemptiveResource</code> 继承自 <code>PriorityResource</code>，并在 <code>request()</code> 中添加了一个名为 <code>preempt</code> 的标志（默认为 <code>True</code>）。通过将其设置为 <code>False</code>（<code>resource.request(priority=x, preempt=False)</code>），进程可以决定不抢占其他资源用户。它仍然会根据其优先级排队等待。</p>
+<p><code>PreemptiveResource</code> 的实现优先考虑优先级高于抢占。这意味着抢占请求不允许作弊，跳过优先级更高的请求。以下示例展示了具有较低优先级的抢占请求不能插队到具有较高优先级的请求之前：</p>
+<pre><code class="language-python"><span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">def</span> <span class="hljs-title function_">user</span>(<span class="hljs-params">name, env, res, prio, preempt</span>):
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">with</span> res.request(priority=prio, preempt=preempt) <span class="hljs-keyword">as</span> req:
+<span class="hljs-meta">... </span>        <span class="hljs-keyword">try</span>:
+<span class="hljs-meta">... </span>            <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;<span class="hljs-subst">{name}</span> requesting at <span class="hljs-subst">{env.now}</span>&#x27;</span>)
+<span class="hljs-meta">... </span>            <span class="hljs-keyword">assert</span> <span class="hljs-built_in">isinstance</span>(env.now, <span class="hljs-built_in">int</span>), <span class="hljs-built_in">type</span>(env.now)
+<span class="hljs-meta">... </span>            <span class="hljs-keyword">yield</span> req
+<span class="hljs-meta">... </span>            <span class="hljs-keyword">assert</span> <span class="hljs-built_in">isinstance</span>(env.now, <span class="hljs-built_in">int</span>), <span class="hljs-built_in">type</span>(env.now)
+<span class="hljs-meta">... </span>            <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;<span class="hljs-subst">{name}</span> got resource at <span class="hljs-subst">{env.now}</span>&#x27;</span>)
+<span class="hljs-meta">... </span>            <span class="hljs-keyword">yield</span> env.timeout(<span class="hljs-number">3</span>)
+<span class="hljs-meta">... </span>        <span class="hljs-keyword">except</span> simpy.Interrupt:
+<span class="hljs-meta">... </span>            <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;<span class="hljs-subst">{name}</span> got preempted at <span class="hljs-subst">{env.now}</span>&#x27;</span>)
+&gt;&gt;&gt;
+<span class="hljs-meta">&gt;&gt;&gt; </span>env = simpy.Environment()
+<span class="hljs-meta">&gt;&gt;&gt; </span>res = simpy.PreemptiveResource(env, capacity=<span class="hljs-number">1</span>)
+<span class="hljs-meta">&gt;&gt;&gt; </span>A = env.process(user(<span class="hljs-string">&#x27;A&#x27;</span>, env, res, prio=<span class="hljs-number">0</span>, preempt=<span class="hljs-literal">True</span>))
+<span class="hljs-meta">&gt;&gt;&gt; </span>env.run(until=<span class="hljs-number">1</span>)  <span class="hljs-comment"># 给 A 一个先机</span>
+A requesting at <span class="hljs-number">0</span>
+A got resource at <span class="hljs-number">0</span>
+<span class="hljs-meta">&gt;&gt;&gt; </span>B = env.process(user(<span class="hljs-string">&#x27;B&#x27;</span>, env, res, prio=-<span class="hljs-number">2</span>, preempt=<span class="hljs-literal">False</span>))
+<span class="hljs-meta">&gt;&gt;&gt; </span>C = env.process(user(<span class="hljs-string">&#x27;C&#x27;</span>, env, res, prio=-<span class="hljs-number">1</span>, preempt=<span class="hljs-literal">True</span>))
+<span class="hljs-meta">&gt;&gt;&gt; </span>env.run()
+B requesting at <span class="hljs-number">1</span>
+C requesting at <span class="hljs-number">1</span>
+B got resource at <span class="hljs-number">3</span>
+C got resource at <span class="hljs-number">6</span>
+</code></pre>
+<ol>
+<li>进程 <code>A</code> 以优先级 0 请求资源。它立即成为用户。</li>
+<li>进程 <code>B</code> 以优先级 -2 请求资源，但将 <code>preempt</code> 设置为 <code>False</code>。它将排队等待。</li>
+<li>进程 <code>C</code> 以优先级 -1 请求资源，但将 <code>preempt</code> 保留为 <code>True</code>。正常情况下，它会抢占 <code>A</code>，但在这个例子中，<code>B</code> 在 <code>C</code> 之前排队，阻止 <code>C</code> 抢占 <code>A</code>。<code>C</code> 也无法抢占 <code>B</code>，因为其优先级不够高。</li>
+</ol>
+<p>因此，此示例中的行为与未使用抢占时的行为相同。在使用混合抢占时要格外小心！</p>
+<p>由于进程 <code>B</code> 的优先级较高，因此在这个示例中不会发生抢占。请注意，如果添加一个优先级为 -3 的请求，它将能够抢占 <code>A</code>。</p>
+<p>如果您的用例需要不同的行为，例如插队或优先考虑抢占而非优先级，你可以通过子类化 <code>PreemptiveResource</code> 并覆盖默认行为来实现。</p>
+<h2 id="容器">容器</h2>
+<p>容器帮助你模拟生产与消费同质且无差别的大量物品。它既可以是连续的（如水），也可以是离散的（如苹果）。</p>
+<p>你可以使用它来模拟加油站的油箱。油罐车增加油箱中的汽油量，而汽车减少它。</p>
+<p>以下是一个非常简单的加油站模型，使用有限数量的加油泵（用 <code>Resource</code> 建模）和一个用 <code>Container</code> 建模的油箱：</p>
+<pre><code class="language-python"><span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">class</span> <span class="hljs-title class_">GasStation</span>:
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, env</span>):
+<span class="hljs-meta">... </span>        self.fuel_dispensers = simpy.Resource(env, capacity=<span class="hljs-number">2</span>)
+<span class="hljs-meta">... </span>        self.gas_tank = simpy.Container(env, init=<span class="hljs-number">100</span>, capacity=<span class="hljs-number">1000</span>)
+<span class="hljs-meta">... </span>        self.mon_proc = env.process(self.monitor_tank(env))
+...
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">monitor_tank</span>(<span class="hljs-params">self, env</span>):
+<span class="hljs-meta">... </span>        <span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:
+<span class="hljs-meta">... </span>            <span class="hljs-keyword">if</span> self.gas_tank.level &lt; <span class="hljs-number">100</span>:
+<span class="hljs-meta">... </span>                <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;Calling tanker at <span class="hljs-subst">{env.now}</span>&#x27;</span>)
+<span class="hljs-meta">... </span>                env.process(tanker(env, self))
+<span class="hljs-meta">... </span>            <span class="hljs-keyword">yield</span> env.timeout(<span class="hljs-number">15</span>)
+&gt;&gt;&gt;
+&gt;&gt;&gt;
+<span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">def</span> <span class="hljs-title function_">tanker</span>(<span class="hljs-params">env, gas_station</span>):
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">yield</span> env.timeout(<span class="hljs-number">10</span>)  <span class="hljs-comment"># 需要 10 分钟到达</span>
+<span class="hljs-meta">... </span>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;Tanker arriving at <span class="hljs-subst">{env.now}</span>&#x27;</span>)
+<span class="hljs-meta">... </span>    amount = gas_station.gas_tank.capacity - gas_station.gas_tank.level
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">yield</span> gas_station.gas_tank.put(amount)
+&gt;&gt;&gt;
+&gt;&gt;&gt;
+<span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">def</span> <span class="hljs-title function_">car</span>(<span class="hljs-params">name, env, gas_station</span>):
+<span class="hljs-meta">... </span>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;Car <span class="hljs-subst">{name}</span> arriving at <span class="hljs-subst">{env.now}</span>&#x27;</span>)
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">with</span> gas_station.fuel_dispensers.request() <span class="hljs-keyword">as</span> req:
+<span class="hljs-meta">... </span>        <span class="hljs-keyword">yield</span> req
+<span class="hljs-meta">... </span>        <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;Car <span class="hljs-subst">{name}</span> starts refueling at <span class="hljs-subst">{env.now}</span>&#x27;</span>)
+<span class="hljs-meta">... </span>        <span class="hljs-keyword">yield</span> gas_station.gas_tank.get(<span class="hljs-number">40</span>)
+<span class="hljs-meta">... </span>        <span class="hljs-keyword">yield</span> env.timeout(<span class="hljs-number">5</span>)
+<span class="hljs-meta">... </span>        <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;Car <span class="hljs-subst">{name}</span> done refueling at <span class="hljs-subst">{env.now}</span>&#x27;</span>)
+&gt;&gt;&gt;
+&gt;&gt;&gt;
+<span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">def</span> <span class="hljs-title function_">car_generator</span>(<span class="hljs-params">env, gas_station</span>):
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">4</span>):
+<span class="hljs-meta">... </span>        env.process(car(i, env, gas_station))
+<span class="hljs-meta">... </span>        <span class="hljs-keyword">yield</span> env.timeout(<span class="hljs-number">5</span>)
+&gt;&gt;&gt;
+&gt;&gt;&gt;
+<span class="hljs-meta">&gt;&gt;&gt; </span>env = simpy.Environment()
+<span class="hljs-meta">&gt;&gt;&gt; </span>gas_station = GasStation(env)
+<span class="hljs-meta">&gt;&gt;&gt; </span>car_gen = env.process(car_generator(env, gas_station))
+<span class="hljs-meta">&gt;&gt;&gt; </span>env.run(<span class="hljs-number">35</span>)
+Car <span class="hljs-number">0</span> arriving at <span class="hljs-number">0</span>
+Car <span class="hljs-number">0</span> starts refueling at <span class="hljs-number">0</span>
+Car <span class="hljs-number">1</span> arriving at <span class="hljs-number">5</span>
+Car <span class="hljs-number">0</span> done refueling at <span class="hljs-number">5</span>
+Car <span class="hljs-number">1</span> starts refueling at <span class="hljs-number">5</span>
+Car <span class="hljs-number">2</span> arriving at <span class="hljs-number">10</span>
+Car <span class="hljs-number">1</span> done refueling at <span class="hljs-number">10</span>
+Car <span class="hljs-number">2</span> starts refueling at <span class="hljs-number">10</span>
+Calling tanker at <span class="hljs-number">15</span>
+Car <span class="hljs-number">3</span> arriving at <span class="hljs-number">15</span>
+Car <span class="hljs-number">3</span> starts refueling at <span class="hljs-number">15</span>
+Tanker arriving at <span class="hljs-number">25</span>
+Car <span class="hljs-number">2</span> done refueling at <span class="hljs-number">30</span>
+Car <span class="hljs-number">3</span> done refueling at <span class="hljs-number">30</span>
+</code></pre>
+<p>可以通过 <code>level</code> 和 <code>capacity</code> 属性获取容器的当前级别和容量（见 <code>GasStation.monitor_tank()</code> 和 <code>tanker()</code>）。还可以通过 <code>put_queue</code> 和 <code>get_queue</code> 属性访问等待事件的列表（类似于 <code>Resource.queue</code>）。</p>
+<h2 id="存储">存储</h2>
+<p>使用存储，你可以模拟具体对象的生产与消费（与容器中存储的较为抽象的“数量”相比）。单个存储甚至可以包含多种类型的对象。</p>
+<p>除了 <code>Store</code>，还有 <code>FilterStore</code>，它允许你使用自定义函数过滤从存储中获取的对象，以及 <code>PriorityStore</code>，其中物品按优先级顺序从存储中取出。</p>
+<p>以下是一个简单的示例，模拟了一个通用的生产者/消费者场景：</p>
+<pre><code class="language-python"><span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">def</span> <span class="hljs-title function_">producer</span>(<span class="hljs-params">env, store</span>):
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">100</span>):
+<span class="hljs-meta">... </span>        <span class="hljs-keyword">yield</span> env.timeout(<span class="hljs-number">2</span>)
+<span class="hljs-meta">... </span>        <span class="hljs-keyword">yield</span> store.put(<span class="hljs-string">f&#x27;spam <span class="hljs-subst">{i}</span>&#x27;</span>)
+<span class="hljs-meta">... </span>        <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;Produced spam at&#x27;</span>, env.now)
+&gt;&gt;&gt;
+&gt;&gt;&gt;
+<span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">def</span> <span class="hljs-title function_">consumer</span>(<span class="hljs-params">name, env, store</span>):
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:
+<span class="hljs-meta">... </span>        <span class="hljs-keyword">yield</span> env.timeout(<span class="hljs-number">1</span>)
+<span class="hljs-meta">... </span>        <span class="hljs-built_in">print</span>(name, <span class="hljs-string">&#x27;requesting spam at&#x27;</span>, env.now)
+<span class="hljs-meta">... </span>        item = <span class="hljs-keyword">yield</span> store.get()
+<span class="hljs-meta">... </span>        <span class="hljs-built_in">print</span>(name, <span class="hljs-string">&#x27;got&#x27;</span>, item, <span class="hljs-string">&#x27;at&#x27;</span>, env.now)
+&gt;&gt;&gt;
+&gt;&gt;&gt;
+<span class="hljs-meta">&gt;&gt;&gt; </span>env = simpy.Environment()
+<span class="hljs-meta">&gt;&gt;&gt; </span>store = simpy.Store(env, capacity=<span class="hljs-number">2</span>)
+&gt;&gt;&gt;
+<span class="hljs-meta">&gt;&gt;&gt; </span>prod = env.process(producer(env, store))
+<span class="hljs-meta">&gt;&gt;&gt; </span>consumers = [env.process(consumer(i, env, store)) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">2</span>)]
+&gt;&gt;&gt;
+<span class="hljs-meta">&gt;&gt;&gt; </span>env.run(until=<span class="hljs-number">5</span>)
+<span class="hljs-number">0</span> requesting spam at <span class="hljs-number">1</span>
+<span class="hljs-number">1</span> requesting spam at <span class="hljs-number">1</span>
+Produced spam at <span class="hljs-number">2</span>
+<span class="hljs-number">0</span> got spam <span class="hljs-number">0</span> at <span class="hljs-number">2</span>
+<span class="hljs-number">0</span> requesting spam at <span class="hljs-number">3</span>
+Produced spam at <span class="hljs-number">4</span>
+<span class="hljs-number">1</span> got spam <span class="hljs-number">1</span> at <span class="hljs-number">4</span>
+</code></pre>
+<p>与其他资源类型一样，可以通过 <code>capacity</code> 属性获取存储的容量。<code>items</code> 属性指向存储中当前可用的项目列表。<code>put_queue</code> 和 <code>get_queue</code> 属性可以访问存储的放置和获取队列。</p>
+<p><code>FilterStore</code> 可用于模拟机器车间，其中机器具有不同的属性。如果同质的资源插槽无法满足需求，这会非常有用：</p>
+<pre><code class="language-python"><span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">from</span> collections <span class="hljs-keyword">import</span> namedtuple
+&gt;&gt;&gt;
+<span class="hljs-meta">&gt;&gt;&gt; </span>Machine = namedtuple(<span class="hljs-string">&#x27;Machine&#x27;</span>, <span class="hljs-string">&#x27;size, duration&#x27;</span>)
+<span class="hljs-meta">&gt;&gt;&gt; </span>m1 = Machine(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>)  <span class="hljs-comment"># 小而慢</span>
+<span class="hljs-meta">&gt;&gt;&gt; </span>m2 = Machine(<span class="hljs-number">2</span>, <span class="hljs-number">1</span>)  <span class="hljs-comment"># 大而快</span>
+&gt;&gt;&gt;
+<span class="hljs-meta">&gt;&gt;&gt; </span>env = simpy.Environment()
+<span class="hljs-meta">&gt;&gt;&gt; </span>machine_shop = simpy.FilterStore(env, capacity=<span class="hljs-number">2</span>)
+<span class="hljs-meta">&gt;&gt;&gt; </span>machine_shop.items = [m1, m2]  <span class="hljs-comment"># 预填充机器车间</span>
+&gt;&gt;&gt;
+<span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">def</span> <span class="hljs-title function_">user</span>(<span class="hljs-params">name, env, ms, size</span>):
+<span class="hljs-meta">... </span>    machine = <span class="hljs-keyword">yield</span> ms.get(<span class="hljs-keyword">lambda</span> machine: machine.size == size)
+<span class="hljs-meta">... </span>    <span class="hljs-built_in">print</span>(name, <span class="hljs-string">&#x27;got&#x27;</span>, machine, <span class="hljs-string">&#x27;at&#x27;</span>, env.now)
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">yield</span> env.timeout(machine.duration)
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">yield</span> ms.put(machine)
+<span class="hljs-meta">... </span>    <span class="hljs-built_in">print</span>(name, <span class="hljs-string">&#x27;released&#x27;</span>, machine, <span class="hljs-string">&#x27;at&#x27;</span>, env.now)
+&gt;&gt;&gt;
+&gt;&gt;&gt;
+<span class="hljs-meta">&gt;&gt;&gt; </span>users = [env.process(user(i, env, machine_shop, (i % <span class="hljs-number">2</span>) + <span class="hljs-number">1</span>))
+<span class="hljs-meta">... </span>         <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">3</span>)]
+<span class="hljs-meta">&gt;&gt;&gt; </span>env.run()
+<span class="hljs-number">0</span> got Machine(size=<span class="hljs-number">1</span>, duration=<span class="hljs-number">2</span>) at <span class="hljs-number">0</span>
+<span class="hljs-number">1</span> got Machine(size=<span class="hljs-number">2</span>, duration=<span class="hljs-number">1</span>) at <span class="hljs-number">0</span>
+<span class="hljs-number">1</span> released Machine(size=<span class="hljs-number">2</span>, duration=<span class="hljs-number">1</span>) at <span class="hljs-number">1</span>
+<span class="hljs-number">0</span> released Machine(size=<span class="hljs-number">1</span>, duration=<span class="hljs-number">2</span>) at <span class="hljs-number">2</span>
+<span class="hljs-number">2</span> got Machine(size=<span class="hljs-number">1</span>, duration=<span class="hljs-number">2</span>) at <span class="hljs-number">2</span>
+<span class="hljs-number">2</span> released Machine(size=<span class="hljs-number">1</span>, duration=<span class="hljs-number">2</span>) at <span class="hljs-number">4</span>
+</code></pre>
+<p>使用 <code>PriorityStore</code>，我们可以模拟具有不同优先级的物品。在以下示例中，一个检查员进程会记录问题，而一个维护员进程则按优先级顺序修复这些问题：</p>
+<pre><code class="language-python"><span class="hljs-meta">&gt;&gt;&gt; </span>env = simpy.Environment()
+<span class="hljs-meta">&gt;&gt;&gt; </span>issues = simpy.PriorityStore(env)
+&gt;&gt;&gt;
+<span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">def</span> <span class="hljs-title function_">inspector</span>(<span class="hljs-params">env, issues</span>):
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">for</span> issue <span class="hljs-keyword">in</span> [simpy.PriorityItem(<span class="hljs-string">&#x27;P2&#x27;</span>, <span class="hljs-string">&#x27;#0000&#x27;</span>),
+<span class="hljs-meta">... </span>                  simpy.PriorityItem(<span class="hljs-string">&#x27;P0&#x27;</span>, <span class="hljs-string">&#x27;#0001&#x27;</span>),
+<span class="hljs-meta">... </span>                  simpy.PriorityItem(<span class="hljs-string">&#x27;P3&#x27;</span>, <span class="hljs-string">&#x27;#0002&#x27;</span>),
+<span class="hljs-meta">... </span>                  simpy.PriorityItem(<span class="hljs-string">&#x27;P1&#x27;</span>, <span class="hljs-string">&#x27;#0003&#x27;</span>)]:
+<span class="hljs-meta">... </span>        <span class="hljs-keyword">yield</span> env.timeout(<span class="hljs-number">1</span>)
+<span class="hljs-meta">... </span>        <span class="hljs-built_in">print</span>(env.now, <span class="hljs-string">&#x27;log&#x27;</span>, issue)
+<span class="hljs-meta">... </span>        <span class="hljs-keyword">yield</span> issues.put(issue)
+&gt;&gt;&gt;
+<span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">def</span> <span class="hljs-title function_">maintainer</span>(<span class="hljs-params">env, issues</span>):
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:
+<span class="hljs-meta">... </span>        <span class="hljs-keyword">yield</span> env.timeout(<span class="hljs-number">3</span>)
+<span class="hljs-meta">... </span>        issue = <span class="hljs-keyword">yield</span> issues.get()
+<span class="hljs-meta">... </span>        <span class="hljs-built_in">print</span>(env.now, <span class="hljs-string">&#x27;repair&#x27;</span>, issue)
+&gt;&gt;&gt;
+<span class="hljs-meta">&gt;&gt;&gt; </span>_ = env.process(inspector(env, issues))
+<span class="hljs-meta">&gt;&gt;&gt; </span>_ = env.process(maintainer(env, issues))
+<span class="hljs-meta">&gt;&gt;&gt; </span>env.run()
+<span class="hljs-number">1</span> log PriorityItem(priority=<span class="hljs-string">&#x27;P2&#x27;</span>, item=<span class="hljs-string">&#x27;#0000&#x27;</span>)
+<span class="hljs-number">2</span> log PriorityItem(priority=<span class="hljs-string">&#x27;P0&#x27;</span>, item=<span class="hljs-string">&#x27;#0001&#x27;</span>)
+<span class="hljs-number">3</span> log PriorityItem(priority=<span class="hljs-string">&#x27;P3&#x27;</span>, item=<span class="hljs-string">&#x27;#0002&#x27;</span>)
+<span class="hljs-number">3</span> repair PriorityItem(priority=<span class="hljs-string">&#x27;P0&#x27;</span>, item=<span class="hljs-string">&#x27;#0001&#x27;</span>)
+<span class="hljs-number">4</span> log PriorityItem(priority=<span class="hljs-string">&#x27;P1&#x27;</span>, item=<span class="hljs-string">&#x27;#0003&#x27;</span>)
+<span class="hljs-number">6</span> repair PriorityItem(priority=<span class="hljs-string">&#x27;P1&#x27;</span>, item=<span class="hljs-string">&#x27;#0003&#x27;</span>)
+<span class="hljs-number">9</span> repair PriorityItem(priority=<span class="hljs-string">&#x27;P2&#x27;</span>, item=<span class="hljs-string">&#x27;#0000&#x27;</span>)
+<span class="hljs-number">12</span> repair PriorityItem(priority=<span class="hljs-string">&#x27;P3&#x27;</span>, item=<span class="hljs-string">&#x27;#0002&#x27;</span>)
+</code></pre>
+
+            
+            
+        </body>
+        </html>

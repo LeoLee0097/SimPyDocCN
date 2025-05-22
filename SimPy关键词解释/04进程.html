@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>&#x8fdb;&#x7a0b;&#x4e0e;&#x8fdb;&#x7a0b;&#x4ea4;&#x4e92;</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="进程与进程交互">进程与进程交互</h1>
+<p>离散事件仿真的中进程之间的交互涉及以下内容：</p>
+<ul>
+<li>睡眠直到被唤醒（休眠/激活）</li>
+<li>等待另一个进程终止</li>
+<li>中断另一个进程</li>
+</ul>
+<p>前两项已经在事件指南中介绍过，但为了完整性，我们也会在这里包含它们。进程交互的另一种方式是资源，这在单独的指南中讨论。</p>
+<ul>
+<li><a href="#%E8%BF%9B%E7%A8%8B%E4%B8%8E%E8%BF%9B%E7%A8%8B%E4%BA%A4%E4%BA%92">进程与进程交互</a>
+<ul>
+<li><a href="#%E7%9D%A1%E7%9C%A0%E7%9B%B4%E5%88%B0%E8%A2%AB%E5%94%A4%E9%86%92">睡眠直到被唤醒</a></li>
+<li><a href="#%E7%AD%89%E5%BE%85%E5%8F%A6%E4%B8%80%E4%B8%AA%E8%BF%9B%E7%A8%8B%E7%BB%88%E6%AD%A2">等待另一个进程终止</a></li>
+<li><a href="#%E4%B8%AD%E6%96%AD%E5%8F%A6%E4%B8%80%E4%B8%AA%E8%BF%9B%E7%A8%8B">中断另一个进程</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="睡眠直到被唤醒">睡眠直到被唤醒</h2>
+<p>想象一下，你想要建模一辆带有智能电池充电控制器的电动汽车。当车辆行驶时，控制器可以处于休眠状态，但一旦车辆连接到电网以充电电池，就需要被激活。</p>
+<p>在 SimPy 2 中，这种模式被称为 <em>passivate / reactivate</em>。在 SimPy 3 中，你可以通过一个简单的共享 <code>Event</code> 来实现这一点：</p>
+<pre><code class="language-python"><span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">from</span> random <span class="hljs-keyword">import</span> seed, randint
+<span class="hljs-meta">&gt;&gt;&gt; </span>seed(<span class="hljs-number">23</span>)
+&gt;&gt;&gt;
+<span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">import</span> simpy
+&gt;&gt;&gt;
+<span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">class</span> <span class="hljs-title class_">EV</span>:
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, env</span>):
+<span class="hljs-meta">... </span>        self.env = env
+<span class="hljs-meta">... </span>        self.drive_proc = env.process(self.drive(env))
+<span class="hljs-meta">... </span>        self.bat_ctrl_proc = env.process(self.bat_ctrl(env))
+<span class="hljs-meta">... </span>        self.bat_ctrl_reactivate = env.event()
+...
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">drive</span>(<span class="hljs-params">self, env</span>):
+<span class="hljs-meta">... </span>        <span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:
+<span class="hljs-meta">... </span>            <span class="hljs-comment"># 行驶 20-40 分钟</span>
+<span class="hljs-meta">... </span>            <span class="hljs-keyword">yield</span> env.timeout(randint(<span class="hljs-number">20</span>, <span class="hljs-number">40</span>))
+...
+<span class="hljs-meta">... </span>            <span class="hljs-comment"># 停车 1-6 小时</span>
+<span class="hljs-meta">... </span>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;Start parking at&#x27;</span>, env.now)
+<span class="hljs-meta">... </span>            self.bat_ctrl_reactivate.succeed()  <span class="hljs-comment"># &quot;激活&quot;</span>
+<span class="hljs-meta">... </span>            self.bat_ctrl_reactivate = env.event()
+<span class="hljs-meta">... </span>            <span class="hljs-keyword">yield</span> env.timeout(randint(<span class="hljs-number">60</span>, <span class="hljs-number">360</span>))
+<span class="hljs-meta">... </span>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;Stop parking at&#x27;</span>, env.now)
+...
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">bat_ctrl</span>(<span class="hljs-params">self, env</span>):
+<span class="hljs-meta">... </span>        <span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:
+<span class="hljs-meta">... </span>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;Bat. ctrl. passivating at&#x27;</span>, env.now)
+<span class="hljs-meta">... </span>            <span class="hljs-keyword">yield</span> self.bat_ctrl_reactivate  <span class="hljs-comment"># &quot;休眠&quot;</span>
+<span class="hljs-meta">... </span>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;Bat. ctrl. reactivated at&#x27;</span>, env.now)
+...
+<span class="hljs-meta">... </span>            <span class="hljs-comment"># 智能充电行为 ...</span>
+<span class="hljs-meta">... </span>            <span class="hljs-keyword">yield</span> env.timeout(randint(<span class="hljs-number">30</span>, <span class="hljs-number">90</span>))
+...
+<span class="hljs-meta">&gt;&gt;&gt; </span>env = simpy.Environment()
+<span class="hljs-meta">&gt;&gt;&gt; </span>ev = EV(env)
+<span class="hljs-meta">&gt;&gt;&gt; </span>env.run(until=<span class="hljs-number">150</span>)
+Bat. ctrl. passivating at <span class="hljs-number">0</span>
+Start parking at <span class="hljs-number">29</span>
+Bat. ctrl. reactivated at <span class="hljs-number">29</span>
+Bat. ctrl. passivating at <span class="hljs-number">60</span>
+Stop parking at <span class="hljs-number">131</span>
+</code></pre>
+<p>由于 <code>bat_ctrl()</code> 只是等待一个普通事件，我们在 SimPy 3 中不再称这种模式为 <em>passivate / reactivate</em>。</p>
+<h2 id="等待另一个进程终止">等待另一个进程终止</h2>
+<p>上面的例子存在一个问题：车辆可能希望停车的时间比充电电池所需的时间短，因为最小停车时间 60 分钟小于最大充电时间 90 分钟。</p>
+<p>为了解决这个问题，我们需要稍微改变我们的模型。每次电动汽车开始停车时，都会启动一个新的 <code>bat_ctrl()</code>。然后，电动汽车等待停车时间结束 <strong>和</strong> 充电停止：</p>
+<pre><code class="language-python"><span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">class</span> <span class="hljs-title class_">EV</span>:
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, env</span>):
+<span class="hljs-meta">... </span>        self.env = env
+<span class="hljs-meta">... </span>        self.drive_proc = env.process(self.drive(env))
+...
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">drive</span>(<span class="hljs-params">self, env</span>):
+<span class="hljs-meta">... </span>        <span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:
+<span class="hljs-meta">... </span>            <span class="hljs-comment"># 行驶 20-40 分钟</span>
+<span class="hljs-meta">... </span>            <span class="hljs-keyword">yield</span> env.timeout(randint(<span class="hljs-number">20</span>, <span class="hljs-number">40</span>))
+...
+<span class="hljs-meta">... </span>            <span class="hljs-comment"># 停车 1-6 小时</span>
+<span class="hljs-meta">... </span>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;Start parking at&#x27;</span>, env.now)
+<span class="hljs-meta">... </span>            charging = env.process(self.bat_ctrl(env))
+<span class="hljs-meta">... </span>            parking = env.timeout(randint(<span class="hljs-number">60</span>, <span class="hljs-number">360</span>))
+<span class="hljs-meta">... </span>            <span class="hljs-keyword">yield</span> charging &amp; parking
+<span class="hljs-meta">... </span>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;Stop parking at&#x27;</span>, env.now)
+...
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">bat_ctrl</span>(<span class="hljs-params">self, env</span>):
+<span class="hljs-meta">... </span>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;Bat. ctrl. started at&#x27;</span>, env.now)
+<span class="hljs-meta">... </span>        <span class="hljs-comment"># 智能充电行为 ...</span>
+<span class="hljs-meta">... </span>        <span class="hljs-keyword">yield</span> env.timeout(randint(<span class="hljs-number">30</span>, <span class="hljs-number">90</span>))
+<span class="hljs-meta">... </span>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;Bat. ctrl. done at&#x27;</span>, env.now)
+...
+<span class="hljs-meta">&gt;&gt;&gt; </span>env = simpy.Environment()
+<span class="hljs-meta">&gt;&gt;&gt; </span>ev = EV(env)
+<span class="hljs-meta">&gt;&gt;&gt; </span>env.run(until=<span class="hljs-number">310</span>)
+Start parking at <span class="hljs-number">29</span>
+Bat. ctrl. started at <span class="hljs-number">29</span>
+Bat. ctrl. done at <span class="hljs-number">83</span>
+Stop parking at <span class="hljs-number">305</span>
+</code></pre>
+<p>再次强调，如果你已经阅读了事件指南，这里没有什么新的或特别的内容。SimPy 进程也是事件，因此你可以 <code>yield</code> 它们，从而等待它们被触发。你也可以通过用 <code>&amp;</code> 连接它们来同时等待两个事件（见同时等待多个事件）。</p>
+<h2 id="中断另一个进程">中断另一个进程</h2>
+<p>像往常一样，我们现在又遇到了另一个问题：假设一次行程非常紧急，但按照当前的实现，我们总是需要等待电池完全充满电。如果我们能够以某种方式中断它……</p>
+<p>幸运的是，确实有一种方法可以做到这一点。你可以在一个 <code>Process</code> 上调用 <code>interrupt()</code>。这将在该进程中抛出一个 <code>Interrupt</code> 异常，立即恢复它：</p>
+<pre><code class="language-python"><span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">class</span> <span class="hljs-title class_">EV</span>:
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, env</span>):
+<span class="hljs-meta">... </span>        self.env = env
+<span class="hljs-meta">... </span>        self.drive_proc = env.process(self.drive(env))
+...
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">drive</span>(<span class="hljs-params">self, env</span>):
+<span class="hljs-meta">... </span>        <span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:
+<span class="hljs-meta">... </span>            <span class="hljs-comment"># 行驶 20-40 分钟</span>
+<span class="hljs-meta">... </span>            <span class="hljs-keyword">yield</span> env.timeout(randint(<span class="hljs-number">20</span>, <span class="hljs-number">40</span>))
+...
+<span class="hljs-meta">... </span>            <span class="hljs-comment"># 停车 1 小时</span>
+<span class="hljs-meta">... </span>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;Start parking at&#x27;</span>, env.now)
+<span class="hljs-meta">... </span>            charging = env.process(self.bat_ctrl(env))
+<span class="hljs-meta">... </span>            parking = env.timeout(<span class="hljs-number">60</span>)
+<span class="hljs-meta">... </span>            <span class="hljs-keyword">yield</span> charging | parking
+<span class="hljs-meta">... </span>            <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> charging.triggered:
+<span class="hljs-meta">... </span>                <span class="hljs-comment"># 如果充电尚未完成，则中断充电。</span>
+<span class="hljs-meta">... </span>                charging.interrupt(<span class="hljs-string">&#x27;Need to go!&#x27;</span>)
+<span class="hljs-meta">... </span>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;Stop parking at&#x27;</span>, env.now)
+...
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">bat_ctrl</span>(<span class="hljs-params">self, env</span>):
+<span class="hljs-meta">... </span>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;Bat. ctrl. started at&#x27;</span>, env.now)
+<span class="hljs-meta">... </span>        <span class="hljs-keyword">try</span>:
+<span class="hljs-meta">... </span>            <span class="hljs-keyword">yield</span> env.timeout(randint(<span class="hljs-number">60</span>, <span class="hljs-number">90</span>))
+<span class="hljs-meta">... </span>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;Bat. ctrl. done at&#x27;</span>, env.now)
+<span class="hljs-meta">... </span>        <span class="hljs-keyword">except</span> simpy.Interrupt <span class="hljs-keyword">as</span> i:
+<span class="hljs-meta">... </span>            <span class="hljs-comment"># 哎呀！在充电完成之前被打断了。</span>
+<span class="hljs-meta">... </span>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;Bat. ctrl. interrupted at&#x27;</span>, env.now, <span class="hljs-string">&#x27;msg:&#x27;</span>,
+<span class="hljs-meta">... </span>                  i.cause)
+...
+<span class="hljs-meta">&gt;&gt;&gt; </span>env = simpy.Environment()
+<span class="hljs-meta">&gt;&gt;&gt; </span>ev = EV(env)
+<span class="hljs-meta">&gt;&gt;&gt; </span>env.run(until=<span class="hljs-number">100</span>)
+Start parking at <span class="hljs-number">31</span>
+Bat. ctrl. started at <span class="hljs-number">31</span>
+Stop parking at <span class="hljs-number">91</span>
+Bat. ctrl. interrupted at <span class="hljs-number">91</span> msg: Need to go!
+</code></pre>
+<p><code>process.interrupt()</code> 实际上是为立即执行安排了一个 <code>Interruption</code> 事件。如果执行了这个事件，它将从当前等待的事件的回调函数中移除受害进程的 <code>_resume()</code> 方法（见 <code>target</code>）。然后，它将 <code>Interrupt</code> 异常抛入进程。</p>
+<p>由于我们没有对进程的原始目标事件做任何特殊处理，因此在捕获 <code>Interrupt</code> 之后，中断的进程可以再次 <code>yield</code> 同一个事件——想象一下有人在等待商店开门。这个人可能会被一个电话打断。电话结束后，他或她会检查商店是否已经开门，然后要么进入商店，要么继续等待。</p>
+
+            
+            
+        </body>
+        </html>

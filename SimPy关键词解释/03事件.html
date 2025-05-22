@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>&#x4e8b;&#x4ef6;</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="事件">事件</h1>
+<p>SimPy 提供了一套丰富的事件类型，用于各种目的。所有事件都继承自 <code>simpy.events.Event</code>。以下是 SimPy 内置事件的层级结构：</p>
+<pre><code class="language-bash">events.Event
+|
++— events.Timeout
+|
++— events.Initialize
+|
++— events.Process
+|
++— events.Condition
+|  |
+|  +— events.AllOf
+|  |
+|  +— events.AnyOf
+.
+.
+.
+</code></pre>
+<p>这些是基本事件类型。事件是可扩展的，例如资源会定义额外的事件。本指南将专注于 <code>simpy.events</code> 模块中的事件。</p>
+<ul>
+<li><a href="#%E4%BA%8B%E4%BB%B6">事件</a>
+<ul>
+<li><a href="#%E4%BA%8B%E4%BB%B6%E5%9F%BA%E7%A1%80">事件基础</a></li>
+<li><a href="#%E6%B7%BB%E5%8A%A0%E5%9B%9E%E8%B0%83%E5%87%BD%E6%95%B0">添加回调函数</a></li>
+<li><a href="#%E8%A7%A6%E5%8F%91%E4%BA%8B%E4%BB%B6">触发事件</a></li>
+<li><a href="#%E5%85%B1%E4%BA%AB%E4%BA%8B%E4%BB%B6">共享事件</a></li>
+<li><a href="#%E8%AE%A9%E6%97%B6%E9%97%B4%E6%B5%81%E9%80%9Dtimeout">让时间流逝：<code>Timeout</code></a></li>
+<li><a href="#%E8%BF%9B%E7%A8%8B%E4%B9%9F%E6%98%AF%E4%BA%8B%E4%BB%B6">进程也是事件</a></li>
+<li><a href="#%E5%90%8C%E6%97%B6%E7%AD%89%E5%BE%85%E5%A4%9A%E4%B8%AA%E4%BA%8B%E4%BB%B6">同时等待多个事件</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="事件基础">事件基础</h2>
+<p>SimPy 事件与延迟（deferreds）、未来（futures）或承诺（promises）非常相似。<code>Event</code> 类的实例用于描述任何类型的事件。事件可以处于以下几种状态之一：</p>
+<ul>
+<li>可能发生（未触发），</li>
+<li>即将发生（已触发），</li>
+<li>已发生（已处理）。</li>
+</ul>
+<p>它们会按照这个顺序且仅一次地经历这些状态。事件与时间密切相关，时间会推动事件的状态变化。</p>
+<ul>
+<li><strong>未触发</strong>：事件最初未被触发，只是内存中的对象。</li>
+<li><strong>已触发</strong>：事件被触发后，会被安排在特定时间，并插入到 SimPy 的事件队列中。属性 <code>Event.triggered</code> 会变为 <code>True</code>。</li>
+<li><strong>已处理</strong>：当 SimPy 从事件队列中弹出事件并调用它的所有回调函数时，事件变为已处理。此时，不能再添加回调函数。属性 <code>Event.processed</code> 会变为 <code>True</code>。</li>
+</ul>
+<p>事件还有一个 <strong>值</strong>。值可以在事件被触发之前或触发时设置，并可以通过 <code>Event.value</code> 或在进程中通过 <code>yield</code> 语句（<code>value = yield event</code>）获取。</p>
+<h2 id="添加回调函数">添加回调函数</h2>
+<p>向事件添加回调函数的最常见方式是从进程函数中 <code>yield</code> 该事件（<code>yield event</code>）。这会将进程的 <code>_resume()</code> 方法作为回调函数添加进去。然而，只要回调函数接受事件实例作为其唯一参数，你就可以将任何可调用对象（函数）添加到回调函数列表中：</p>
+<pre><code class="language-python"><span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">import</span> simpy
+&gt;&gt;&gt;
+<span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">def</span> <span class="hljs-title function_">my_callback</span>(<span class="hljs-params">event</span>):
+<span class="hljs-meta">... </span>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;Called back from&#x27;</span>, event)
+...
+<span class="hljs-meta">&gt;&gt;&gt; </span>env = simpy.Environment()
+<span class="hljs-meta">&gt;&gt;&gt; </span>event = env.event()
+<span class="hljs-meta">&gt;&gt;&gt; </span>event.callbacks.append(my_callback)
+<span class="hljs-meta">&gt;&gt;&gt; </span>event.callbacks
+[&lt;function my_callback at 0x...&gt;]
+</code></pre>
+<p>如果事件已经被 <strong>处理</strong>，它的所有 <code>Event.callbacks</code> 都已经被执行，并且该属性会被设置为 <code>None</code>。这是为了防止你添加更多的回调函数——因为事件已经发生，这些回调函数当然永远不会被调用。</p>
+<h2 id="触发事件">触发事件</h2>
+<p>事件被触发时，它们可以 <strong>成功</strong> 或 <strong>失败</strong>。例如，如果事件是在计算结束时触发的，且一切顺利，事件就会 <strong>成功</strong>。如果在计算过程中发生异常，事件就会 <strong>失败</strong>。</p>
+<ul>
+<li><strong>成功触发事件</strong>：可以使用 <code>Event.succeed(value=None)</code>。你可以选择性地向它传递一个 <strong>值</strong>（例如，计算的结果）。</li>
+<li><strong>失败触发事件</strong>：可以调用 <code>Event.fail(exception)</code>，并向它传递一个 <code>Exception</code> 实例（例如，在失败的计算中捕获的异常）。</li>
+</ul>
+<p><code>Event.succeed()</code> 和 <code>Event.fail()</code> 方法会返回它们绑定的事件实例。这允许你执行类似 <code>yield Event(env).succeed()</code> 的操作。</p>
+<h2 id="共享事件">共享事件</h2>
+<p>事件可以被共享。它们可以由进程创建，也可以在进程上下文之外创建。它们可以传递给其他进程并进行链式调用：</p>
+<pre><code class="language-python"><span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">class</span> <span class="hljs-title class_">School</span>:
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, env</span>):
+<span class="hljs-meta">... </span>        self.env = env
+<span class="hljs-meta">... </span>        self.class_ends = env.event()
+<span class="hljs-meta">... </span>        self.pupil_procs = [env.process(self.pupil()) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">3</span>)]
+<span class="hljs-meta">... </span>        self.bell_proc = env.process(self.bell())
+...
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">bell</span>(<span class="hljs-params">self</span>):
+<span class="hljs-meta">... </span>        <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">2</span>):
+<span class="hljs-meta">... </span>            <span class="hljs-keyword">yield</span> self.env.timeout(<span class="hljs-number">45</span>)
+<span class="hljs-meta">... </span>            self.class_ends.succeed()
+<span class="hljs-meta">... </span>            self.class_ends = self.env.event()
+<span class="hljs-meta">... </span>            <span class="hljs-built_in">print</span>()
+...
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">pupil</span>(<span class="hljs-params">self</span>):
+<span class="hljs-meta">... </span>        <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">2</span>):
+<span class="hljs-meta">... </span>            <span class="hljs-built_in">print</span>(<span class="hljs-string">r&#x27; \o/&#x27;</span>, end=<span class="hljs-string">&#x27;&#x27;</span>)
+<span class="hljs-meta">... </span>            <span class="hljs-keyword">yield</span> self.class_ends
+...
+<span class="hljs-meta">&gt;&gt;&gt; </span>school = School(env)
+<span class="hljs-meta">&gt;&gt;&gt; </span>env.run()
+ \o/ \o/ \o/
+ \o/ \o/ \o/
+</code></pre>
+<h2 id="让时间流逝timeout">让时间流逝：<code>Timeout</code></h2>
+<p>为了让仿真中的时间真正流逝，有 <em>timeout</em> 事件。<code>Timeout</code> 有两个参数：一个 <em>delay</em>（延迟）和一个可选的 <em>value</em>（值）：<code>Timeout(delay, value=None)</code>。它在创建时触发自身，并在 <code>now + delay</code> 时安排自己。因此，<code>succeed()</code> 和 <code>fail()</code> 方法不能再被调用，你必须在创建 <code>Timeout</code> 时传递事件值。</p>
+<p>延迟可以是任何类型的数字，通常是 <em>int</em> 或 <em>float</em>，只要它支持比较和加法即可。</p>
+<h2 id="进程也是事件">进程也是事件</h2>
+<p>SimPy 进程（由 <code>Process</code> 或 <code>env.process()</code> 创建）有一个很好的特性，它们也是事件。</p>
+<p>这意味着，一个进程可以 <code>yield</code> 另一个进程。然后，当另一个进程结束时，它会被恢复。事件的值将是该进程的返回值：</p>
+<pre><code class="language-python"><span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">def</span> <span class="hljs-title function_">sub</span>(<span class="hljs-params">env</span>):
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">yield</span> env.timeout(<span class="hljs-number">1</span>)
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">return</span> <span class="hljs-number">23</span>
+...
+<span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">def</span> <span class="hljs-title function_">parent</span>(<span class="hljs-params">env</span>):
+<span class="hljs-meta">... </span>    ret = <span class="hljs-keyword">yield</span> env.process(sub(env))
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">return</span> ret
+...
+<span class="hljs-meta">&gt;&gt;&gt; </span>env.run(env.process(parent(env)))
+<span class="hljs-number">23</span>
+</code></pre>
+<p>如果不想让进程立即开始，而是希望在一定延迟后开始，可以使用 <code>simpy.util.start_delayed()</code>。这个方法返回一个辅助进程，该进程在真正开始一个进程之前使用一个 <em>timeout</em>。</p>
+<pre><code class="language-python"><span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">from</span> simpy.util <span class="hljs-keyword">import</span> start_delayed
+&gt;&gt;&gt;
+<span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">def</span> <span class="hljs-title function_">sub</span>(<span class="hljs-params">env</span>):
+<span class="hljs-meta">... </span>   <span class="hljs-keyword">yield</span> env.timeout(<span class="hljs-number">1</span>)
+<span class="hljs-meta">... </span>   <span class="hljs-keyword">return</span> <span class="hljs-number">23</span>
+...
+<span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">def</span> <span class="hljs-title function_">parent</span>(<span class="hljs-params">env</span>):
+<span class="hljs-meta">... </span>   sub_proc = <span class="hljs-keyword">yield</span> start_delayed(env, sub(env), delay=<span class="hljs-number">3</span>) <span class="hljs-comment"># 添加 yield 并延迟 3 个时间单位</span>
+<span class="hljs-meta">... </span>   ret = <span class="hljs-keyword">yield</span> sub_proc
+<span class="hljs-meta">... </span>   <span class="hljs-keyword">return</span> ret
+...
+<span class="hljs-meta">&gt;&gt;&gt; </span>env.run(env.process(parent(env)))
+<span class="hljs-number">23</span>
+</code></pre>
+<p>需要注意的是额外添加的 <code>yield</code> 语句。它是必要的，因为 <code>start_delayed()</code> 返回一个 <em>timeout</em> 事件，而不是一个进程。你需要 <code>yield</code> 这个 <em>timeout</em> 事件，以便在延迟后恢复进程。</p>
+<h2 id="同时等待多个事件">同时等待多个事件</h2>
+<p>有时，你可能想同时等待多个事件。例如，你可能想等待一个资源，但不是无限期地等待。或者你可能想等待一组事件的发生。</p>
+<p>因此，SimPy 提供了 <code>AnyOf</code> 和 <code>AllOf</code> 事件，它们都是 <code>Condition</code> 事件。</p>
+<ul>
+<li><code>AnyOf</code>：当事件列表中的任意一个事件被触发时触发。</li>
+<li><code>AllOf</code>：当事件列表中的所有事件都被触发时触发。</li>
+</ul>
+<pre><code class="language-python"><span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">from</span> simpy.events <span class="hljs-keyword">import</span> AnyOf, AllOf, Event
+<span class="hljs-meta">&gt;&gt;&gt; </span>events = [Event(env) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">3</span>)]
+<span class="hljs-meta">&gt;&gt;&gt; </span>a = AnyOf(env, events)  <span class="hljs-comment"># 如果 &quot;events&quot; 中至少有一个被触发，则触发。</span>
+<span class="hljs-meta">&gt;&gt;&gt; </span>b = AllOf(env, events)  <span class="hljs-comment"># 如果 &quot;events&quot; 中每一个都被触发，则触发。</span>
+</code></pre>
+<p>条件事件的值是一个有序字典，每个被触发的事件都有一个条目。在 <code>AllOf</code> 的情况下，该字典的大小将始终与事件列表的长度相同。<code>AnyOf</code> 的值字典将至少有一个条目。在这两种情况下，事件实例用作键，事件值将是值。</p>
+<p>作为 <code>AllOf</code> 和 <code>AnyOf</code> 的简写，你也可以使用逻辑运算符 <code>&amp;</code>（与）和 <code>|</code>（或）：</p>
+<pre><code class="language-python"><span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">def</span> <span class="hljs-title function_">test_condition</span>(<span class="hljs-params">env</span>):
+<span class="hljs-meta">... </span>    t1, t2 = env.timeout(<span class="hljs-number">1</span>, value=<span class="hljs-string">&#x27;spam&#x27;</span>), env.timeout(<span class="hljs-number">2</span>, value=<span class="hljs-string">&#x27;eggs&#x27;</span>)
+<span class="hljs-meta">... </span>    ret = <span class="hljs-keyword">yield</span> t1 | t2
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">assert</span> ret == {t1: <span class="hljs-string">&#x27;spam&#x27;</span>}
+...
+<span class="hljs-meta">... </span>    t1, t2 = env.timeout(<span class="hljs-number">1</span>, value=<span class="hljs-string">&#x27;spam&#x27;</span>), env.timeout(<span class="hljs-number">2</span>, value=<span class="hljs-string">&#x27;eggs&#x27;</span>)
+<span class="hljs-meta">... </span>    ret = <span class="hljs-keyword">yield</span> t1 &amp; t2
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">assert</span> ret == {t1: <span class="hljs-string">&#x27;spam&#x27;</span>, t2: <span class="hljs-string">&#x27;eggs&#x27;</span>}
+...
+<span class="hljs-meta">... </span>    <span class="hljs-comment"># You can also concatenate &amp; and |</span>
+<span class="hljs-meta">... </span>    e1, e2, e3 = [env.timeout(i) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">3</span>)]
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">yield</span> (e1 | e2) &amp; e3
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">assert</span> <span class="hljs-built_in">all</span>(e.processed <span class="hljs-keyword">for</span> e <span class="hljs-keyword">in</span> [e1, e2, e3])
+...
+<span class="hljs-meta">&gt;&gt;&gt; </span>proc = env.process(test_condition(env))
+<span class="hljs-meta">&gt;&gt;&gt; </span>env.run()
+</code></pre>
+<p>条件结果的顺序与条件事件指定的顺序完全相同。这允许以下方式方便地获取在 <em>and</em> 条件（包括 <code>AllOf</code>）中指定的多个事件的值：</p>
+<pre><code class="language-python"><span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">def</span> <span class="hljs-title function_">fetch_values_of_multiple_events</span>(<span class="hljs-params">env</span>):
+<span class="hljs-meta">... </span>    t1, t2 = env.timeout(<span class="hljs-number">1</span>, value=<span class="hljs-string">&#x27;spam&#x27;</span>), env.timeout(<span class="hljs-number">2</span>, value=<span class="hljs-string">&#x27;eggs&#x27;</span>)
+<span class="hljs-meta">... </span>    r1, r2 = (<span class="hljs-keyword">yield</span> t1 &amp; t2).values()
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">assert</span> r1 == <span class="hljs-string">&#x27;spam&#x27;</span> <span class="hljs-keyword">and</span> r2 == <span class="hljs-string">&#x27;eggs&#x27;</span>
+...
+<span class="hljs-meta">&gt;&gt;&gt; </span>proc = env.process(fetch_values_of_multiple_events(env))
+<span class="hljs-meta">&gt;&gt;&gt; </span>env.run()
+</code></pre>
+
+            
+            
+        </body>
+        </html>

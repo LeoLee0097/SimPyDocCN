@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>SimPy &#x57fa;&#x7840;&#x6982;&#x5ff5;&#x8be6;&#x89e3;</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="simpy-基础概念详解">SimPy 基础概念详解</h1>
+<ul>
+<li><a href="#simpy-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E8%AF%A6%E8%A7%A3">SimPy 基础概念详解</a>
+<ul>
+<li><a href="#simpy-%E6%98%AF%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84">SimPy 是如何工作的</a></li>
+<li><a href="#%E4%B8%8A%E8%BF%B0%E7%A4%BA%E4%BE%8B%E7%9A%84%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%E7%89%88%E6%9C%AC">上述示例的“最佳实践”版本</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="simpy-是如何工作的">SimPy 是如何工作的</h2>
+<p>如果将 SimPy 拆解开来，它其实就是一个异步事件分发器。你生成事件，并在给定的仿真时间安排它们。事件会按照优先级、仿真时间和递增的事件 ID 进行排序。事件还有一个回调函数列表，当事件被触发并由事件循环处理时，这些回调函数会被执行。事件也可以有返回值。</p>
+<p>涉及的组件包括 <code>Environment</code>、<code>events</code> 以及你编写的进程函数。</p>
+<p>进程函数实现了你的仿真模型，即它们定义了仿真的行为。它们是普通的 Python 生成器函数，会 <code>yield</code> 出 <code>Event</code> 的实例。</p>
+<p>环境会在其事件列表中存储这些事件，并跟踪当前的仿真时间。</p>
+<p>如果进程函数 <code>yield</code> 一个事件，SimPy 会将进程添加到事件的回调函数中，并将进程挂起，直到事件被触发并处理。当等待事件的进程被恢复时，它还会收到事件的值。</p>
+<p>下面是一个非常简单的示例，展示了所有这些内容；代码比实际需要的更冗长，以便更清晰地说明问题。本节末尾提供了一个紧凑版本的代码：</p>
+<pre><code class="language-python"><span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">import</span> simpy
+&gt;&gt;&gt;
+<span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">def</span> <span class="hljs-title function_">example</span>(<span class="hljs-params">env</span>):
+<span class="hljs-meta">... </span>    event = simpy.events.Timeout(env, delay=<span class="hljs-number">1</span>, value=<span class="hljs-number">42</span>)
+<span class="hljs-meta">... </span>    value = <span class="hljs-keyword">yield</span> event
+<span class="hljs-meta">... </span>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;now=%d, value=%d&#x27;</span> % (env.now, value))
+&gt;&gt;&gt;
+<span class="hljs-meta">&gt;&gt;&gt; </span>env = simpy.Environment()
+<span class="hljs-meta">&gt;&gt;&gt; </span>example_gen = example(env)
+<span class="hljs-meta">&gt;&gt;&gt; </span>p = simpy.events.Process(env, example_gen)
+&gt;&gt;&gt;
+<span class="hljs-meta">&gt;&gt;&gt; </span>env.run()
+now=<span class="hljs-number">1</span>, value=<span class="hljs-number">42</span>
+</code></pre>
+<p>上面的 <code>example()</code> 进程函数首先创建了一个 <code>Timeout</code> 事件。它将环境、延迟和值传递给它。<code>Timeout</code> 会在 <code>now + delay</code> 时安排自己（这就是为什么需要环境）；其他类型的事件通常会在当前仿真时间安排自己。</p>
+<p>然后，进程函数 <code>yield</code> 该事件，从而被挂起。当 SimPy 处理 <code>Timeout</code> 事件时，进程函数会被恢复。进程函数还会收到事件的值（42）——然而，这是可选的，如果你对值不感兴趣，或者事件根本没有值，那么只写 <code>yield event</code> 也是可以的。</p>
+<p>最后，进程函数打印当前仿真时间（可以通过环境的 <code>now</code> 属性访问）和 <code>Timeout</code> 的值。</p>
+<p>如果所有需要的进程函数都已定义，你可以实例化仿真所需的所有对象。在大多数情况下，你会先创建一个 <code>Environment</code> 的实例，因为在创建其他所有内容时，你需要频繁地传递它。</p>
+<p>启动进程函数涉及两件事：</p>
+<ol>
+<li>
+<p>你需要调用进程函数来创建一个生成器对象。（这不会执行该函数的任何代码。请阅读 <a href="https://realpython.com/introduction-to-python-generators/#the-python-yield-keyword-explained">The Python yield keyword explained</a>，以了解为什么会这样。）</p>
+</li>
+<li>
+<p>然后，你创建一个 <code>Process</code> 的实例，并将环境和生成器对象传递给它。这将在当前仿真时间安排一个 <code>Initialize</code> 事件，该事件将启动进程函数的执行。进程实例也是一个事件，当进程函数返回时会被触发。事件指南解释了为什么这很有用。</p>
+</li>
+</ol>
+<p>最后，你可以启动 SimPy 的事件循环。默认情况下，只要事件列表中有事件，它就会一直运行，但你也可以通过提供一个 <code>until</code> 参数来让它提前停止（参见仿真控制）。</p>
+<p>以下指南将更详细地介绍环境及其与事件和进程函数的交互。</p>
+<h2 id="上述示例的最佳实践版本">上述示例的“最佳实践”版本</h2>
+<pre><code class="language-python"><span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">import</span> simpy
+&gt;&gt;&gt;
+<span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">def</span> <span class="hljs-title function_">example</span>(<span class="hljs-params">env</span>):
+<span class="hljs-meta">... </span>    value = <span class="hljs-keyword">yield</span> env.timeout(<span class="hljs-number">1</span>, value=<span class="hljs-number">42</span>)
+<span class="hljs-meta">... </span>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;now=%d, value=%d&#x27;</span> % (env.now, value))
+&gt;&gt;&gt;
+<span class="hljs-meta">&gt;&gt;&gt; </span>env = simpy.Environment()
+<span class="hljs-meta">&gt;&gt;&gt; </span>p = env.process(example(env))
+<span class="hljs-meta">&gt;&gt;&gt; </span>env.run()
+now=<span class="hljs-number">1</span>, value=<span class="hljs-number">42</span>
+</code></pre>
+
+            
+            
+        </body>
+        </html>

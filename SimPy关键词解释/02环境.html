@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>&#x73af;&#x5883;</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="环境">环境</h1>
+<p>仿真环境管理仿真时间以及事件的调度和处理。它还提供了逐步运行或执行仿真的手段。</p>
+<ul>
+<li><a href="#%E7%8E%AF%E5%A2%83">环境</a>
+<ul>
+<li><a href="#%E4%BB%BF%E7%9C%9F%E6%8E%A7%E5%88%B6">仿真控制</a></li>
+<li><a href="#%E7%8A%B6%E6%80%81%E8%AE%BF%E9%97%AE">状态访问</a></li>
+<li><a href="#%E4%BA%8B%E4%BB%B6%E5%88%9B%E5%BB%BA">事件创建</a></li>
+<li><a href="#%E5%85%B6%E4%BB%96%E5%86%85%E5%AE%B9">其他内容</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="仿真控制">仿真控制</h2>
+<p>SimPy 在仿真执行方面非常灵活。你可以运行仿真直到没有更多事件，直到达到某个仿真时间，或者直到某个事件被触发。你也可以逐事件地逐步运行仿真。此外，你可以随意混合这些操作。</p>
+<p>例如，你可以运行仿真直到发生某个有趣的事件。然后，你可以逐事件地逐步运行仿真一段时间；最后，运行仿真直到没有更多事件，所有进程都已终止。</p>
+<p>这里最重要的方法是 <code>Environment.run()</code>：</p>
+<ul>
+<li>
+<p>如果你没有任何参数调用它（<code>env.run()</code>），它将逐步运行仿真直到没有更多事件。</p>
+<pre><code class="language-text">如果你的进程永远运行（`while True: yield env.timeout(1)`），这个方法将永远不会终止（除非你通过按 `Ctrl-C` 等方式终止脚本）。
+</code></pre>
+</li>
+<li>
+<p>在大多数情况下，建议在仿真达到某个特定仿真时间时停止。因此，你可以通过 <em>until</em> 参数传递期望的时间，例如：<code>env.run(until=10)</code>。</p>
+<p>仿真将在内部时钟达到 10 时停止，但不会处理时间 10 上安排的任何事件。这类似于一个新的环境，其中时钟为 0，但（显然）尚未处理任何事件。</p>
+<p>如果你想将仿真集成到 GUI 中并想绘制一个进度条，你可以反复调用这个函数，使用递增的 <em>until</em> 值，并在每次调用后更新进度条：</p>
+<pre><code class="language-python"><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">100</span>):
+    env.run(until=i)
+    progressbar.update(i)
+</code></pre>
+</li>
+<li>
+<p>除了向 <code>run()</code> 传递一个数字外，你还可以向它传递任何事件。<code>run()</code> 将在事件被处理后返回。</p>
+<p>假设当前时间是 0，<code>env.run(until=env.timeout(5))</code> 等同于 <code>env.run(until=5)</code>。</p>
+<p>你也可以传递其他类型的事件（记住，<code>Process</code> 也是一个事件）：</p>
+<pre><code class="language-python"><span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">import</span> simpy
+&gt;&gt;&gt;
+<span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">def</span> <span class="hljs-title function_">my_proc</span>(<span class="hljs-params">env</span>):
+<span class="hljs-meta">&gt;&gt;&gt; </span>...     <span class="hljs-keyword">yield</span> env.timeout(<span class="hljs-number">1</span>)
+<span class="hljs-meta">&gt;&gt;&gt; </span>...     <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;Monty Pythons Flying Circus&#x27;</span>
+&gt;&gt;&gt;
+<span class="hljs-meta">&gt;&gt;&gt; </span>env = simpy.Environment()
+<span class="hljs-meta">&gt;&gt;&gt; </span>proc = env.process(my_proc(env))
+<span class="hljs-meta">&gt;&gt;&gt; </span>env.run(until=proc)
+<span class="hljs-string">&#x27;Monty Python’s Flying Circus&#x27;</span>
+</code></pre>
+</li>
+</ul>
+<p>为了逐事件地逐步运行仿真，环境提供了 <code>peek()</code> 和 <code>step()</code>。</p>
+<p><code>peek()</code> 返回下一个计划事件的时间，如果没有计划未来事件，则返回 <em>无穷大</em>（<code>float('inf')</code>）。</p>
+<p><code>step()</code> 处理下一个计划事件。如果没有事件可用，它将引发一个 <code>EmptySchedule</code> 异常。</p>
+<p>在典型用例中，你可以在一个循环中使用这些方法，如下所示：</p>
+<pre><code class="language-python">until = <span class="hljs-number">10</span>
+<span class="hljs-keyword">while</span> env.peek() &lt; until:
+   env.step()
+</code></pre>
+<h2 id="状态访问">状态访问</h2>
+<p>环境允许你通过 <code>Environment.now</code> 属性获取当前仿真时间。仿真时间是一个无单位的数字，通过 <code>Timeout</code> 事件增加。</p>
+<p>默认情况下，<code>now</code> 从 0 开始，但你可以向 <code>Environment</code> 传递一个 <code>initial_time</code> 来使用其他值。</p>
+<pre><code class="language-text">  尽管仿真时间在技术上是无单位的，但你可以假装它是以秒为单位的，并将其用作由 `time.time()` 返回的时间戳来计算日期或星期几。
+</code></pre>
+<p>属性 <code>Environment.active_process</code> 类似于 <code>os.getpid()</code>，它要么是 <code>None</code>，要么指向当前活动的 <code>Process</code>。当进程函数正在执行时，进程是 <em>活动的</em>。当它 <code>yield</code> 一个事件时，它变得 <em>非活动</em>（或挂起）。</p>
+<p>因此，只有在进程函数内部或被进程函数调用的函数内部，才有意义访问此属性：</p>
+<pre><code class="language-python"><span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">def</span> <span class="hljs-title function_">subfunc</span>(<span class="hljs-params">env</span>):
+<span class="hljs-meta">... </span>    <span class="hljs-built_in">print</span>(env.active_process)  <span class="hljs-comment"># 将打印 &quot;p1&quot;</span>
+&gt;&gt;&gt;
+<span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">def</span> <span class="hljs-title function_">my_proc</span>(<span class="hljs-params">env</span>):
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:
+<span class="hljs-meta">... </span>        <span class="hljs-built_in">print</span>(env.active_process)  <span class="hljs-comment"># 将打印 &quot;p1&quot;</span>
+<span class="hljs-meta">... </span>        subfunc(env)
+<span class="hljs-meta">... </span>        <span class="hljs-keyword">yield</span> env.timeout(<span class="hljs-number">1</span>)
+&gt;&gt;&gt;
+<span class="hljs-meta">&gt;&gt;&gt; </span>env = simpy.Environment()
+<span class="hljs-meta">&gt;&gt;&gt; </span>p1 = env.process(my_proc(env))
+<span class="hljs-meta">&gt;&gt;&gt; </span>env.active_process  <span class="hljs-comment"># None</span>
+<span class="hljs-meta">&gt;&gt;&gt; </span>env.step()
+&lt;Process(my_proc) <span class="hljs-built_in">object</span> at 0x...&gt;
+&lt;Process(my_proc) <span class="hljs-built_in">object</span> at 0x...&gt;
+<span class="hljs-meta">&gt;&gt;&gt; </span>env.active_process  <span class="hljs-comment"># None</span>
+</code></pre>
+<p>一个示例用例是资源系统：如果进程函数调用 <code>request()</code> 来请求资源，资源将通过 <code>env.active_process</code> 确定请求进程。</p>
+<h2 id="事件创建">事件创建</h2>
+<p>通常，要创建事件，你需要导入 <code>simpy.events</code>，实例化事件类，并将环境的引用传递给它。为了减少输入量，<code>Environment</code> 提供了一些事件创建的快捷方式。例如，<code>Environment.event()</code> 等同于 <code>simpy.events.Event(env)</code>。</p>
+<p>其他快捷方式包括：</p>
+<ul>
+<li><code>Environment.process()</code></li>
+<li><code>Environment.timeout()</code></li>
+<li><code>Environment.all_of()</code></li>
+<li><code>Environment.any_of()</code></li>
+</ul>
+<h2 id="其他内容">其他内容</h2>
+<p>从 Python 3.3 开始，生成器函数可以有返回值：</p>
+<pre><code class="language-python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">my_proc</span>(<span class="hljs-params">env</span>):
+    <span class="hljs-keyword">yield</span> env.timeout(<span class="hljs-number">1</span>)
+    <span class="hljs-keyword">return</span> <span class="hljs-number">42</span>
+</code></pre>
+<p>在 SimPy 中，这可以用来为进程提供返回值，这些返回值可以被其他进程使用：</p>
+<pre><code class="language-python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">other_proc</span>(<span class="hljs-params">env</span>):
+    ret_val = <span class="hljs-keyword">yield</span> env.process(my_proc(env))
+    <span class="hljs-keyword">assert</span> ret_val == <span class="hljs-number">42</span>
+</code></pre>
+
+            
+            
+        </body>
+        </html>

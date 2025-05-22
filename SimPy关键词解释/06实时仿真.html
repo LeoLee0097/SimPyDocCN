@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>&#x5b9e;&#x65f6;&#x4eff;&#x771f;</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="实时仿真">实时仿真</h1>
+<p>有时，你可能不希望尽可能快地运行仿真，而是希望使其同步于实际时间。这种仿真也称为实时仿真。</p>
+<p>实时仿真可能在以下情况下是必要的：</p>
+<ul>
+<li>你有硬件在环，</li>
+<li>有人员与仿真进行交互，或者</li>
+<li>你想分析算法的实时行为。</li>
+</ul>
+<p>要将仿真转换为实时仿真，只需将 SimPy 默认的 <code>Environment</code> 替换为 <code>simpy.rt.RealtimeEnvironment</code>。除了 <code>initial_time</code> 参数外，还有两个附加参数：<code>factor</code> 和 <code>strict</code>：
+<code>RealtimeEnvironment(initial_time=0, factor=1.0, strict=True)</code>。</p>
+<p><code>factor</code> 定义了每个仿真时间步长所经过的实际时间量。默认情况下，这是每秒一次。如果你设置 <code>factor=0.1</code>，则每单位仿真时间将只花费十分之一秒；如果设置 <code>factor=60</code>，则将花费一分钟。</p>
+<p>以下是一个简单的示例，将普通仿真转换为实时仿真，每单位仿真时间花费十分之一秒：</p>
+<pre><code class="language-python"><span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">import</span> time
+<span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">import</span> simpy
+&gt;&gt;&gt;
+<span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">def</span> <span class="hljs-title function_">example</span>(<span class="hljs-params">env</span>):
+<span class="hljs-meta">... </span>    start = time.perf_counter()
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">yield</span> env.timeout(<span class="hljs-number">1</span>)
+<span class="hljs-meta">... </span>    end = time.perf_counter()
+<span class="hljs-meta">... </span>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;Duration: %.2fs&#x27;</span> % (end - start))
+&gt;&gt;&gt;
+<span class="hljs-meta">&gt;&gt;&gt; </span>env = simpy.Environment()
+<span class="hljs-meta">&gt;&gt;&gt; </span>proc = env.process(example(env))
+<span class="hljs-meta">&gt;&gt;&gt; </span>env.run(until=proc)
+Duration: <span class="hljs-number">0.00</span>秒
+&gt;&gt;&gt;
+<span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">import</span> simpy.rt
+<span class="hljs-meta">&gt;&gt;&gt; </span>env = simpy.rt.RealtimeEnvironment(factor=<span class="hljs-number">0.1</span>)
+<span class="hljs-meta">&gt;&gt;&gt; </span>proc = env.process(example(env))
+<span class="hljs-meta">&gt;&gt;&gt; </span>env.run(until=proc)
+Duration: <span class="hljs-number">0.10</span>秒
+</code></pre>
+<p>如果 <code>strict</code> 参数设置为 <code>True</code>（默认值），则在单个仿真时间步长内消耗的时间超过了实际时间因子所允许的范围时，<code>step()</code> 和 <code>run()</code> 方法将引发 <code>RuntimeError</code>。在以下示例中，一个进程将在具有 0.01 秒时间因子的实时环境中执行一项需要 0.02 秒的任务：</p>
+<pre><code class="language-python"><span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">import</span> time
+<span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">import</span> simpy.rt
+&gt;&gt;&gt;
+<span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">def</span> <span class="hljs-title function_">slow_proc</span>(<span class="hljs-params">env</span>):
+<span class="hljs-meta">... </span>    time.sleep(<span class="hljs-number">0.02</span>)  <span class="hljs-comment"># 重计算 :-)</span>
+<span class="hljs-meta">... </span>    <span class="hljs-keyword">yield</span> env.timeout(<span class="hljs-number">1</span>)
+&gt;&gt;&gt;
+<span class="hljs-meta">&gt;&gt;&gt; </span>env = simpy.rt.RealtimeEnvironment(factor=<span class="hljs-number">0.01</span>)
+<span class="hljs-meta">&gt;&gt;&gt; </span>proc = env.process(slow_proc(env))
+<span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">try</span>:
+<span class="hljs-meta">... </span>    env.run(until=proc)
+<span class="hljs-meta">... </span>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;Okay~&#x27;</span>)
+<span class="hljs-meta">... </span><span class="hljs-keyword">except</span> RuntimeError:
+<span class="hljs-meta">... </span>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;Too slow&#x27;</span>)
+Too slow
+</code></pre>
+<p>要抑制此错误，只需将 <code>strict</code> 设置为 <code>False</code>：</p>
+<pre><code class="language-python"><span class="hljs-meta">&gt;&gt;&gt; </span>env = simpy.rt.RealtimeEnvironment(factor=<span class="hljs-number">0.01</span>, strict=<span class="hljs-literal">False</span>)
+<span class="hljs-meta">&gt;&gt;&gt; </span>proc = env.process(slow_proc(env))
+<span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">try</span>:
+<span class="hljs-meta">... </span>    env.run(until=proc)
+<span class="hljs-meta">... </span>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;Okay~&#x27;</span>)
+<span class="hljs-meta">... </span><span class="hljs-keyword">except</span> RuntimeError:
+<span class="hljs-meta">... </span>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;Too slow&#x27;</span>)
+Okay~
+</code></pre>
+
+            
+            
+        </body>
+        </html>
